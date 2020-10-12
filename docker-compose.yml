@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  jekyll_tester:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - JEKYLL_VERSION=3.8
+    volumes:
+      - ./:/srv/jekyll/
+      - ./entrypoint.sh:/scripts/entrypoint.sh
+    tty: true
+    stdin_open: true
+    entrypoint: 
+      - /scripts/entrypoint.sh
+    ports:
+      - "4000:4000"
