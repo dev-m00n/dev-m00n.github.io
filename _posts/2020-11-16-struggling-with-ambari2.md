@@ -6,54 +6,43 @@ categories: [Hadoop]
 tags: [Hadoop, Ambari, Docker]
 math: true
 ---
-# 똥컴에 Ambari Hadoop Cluster를 Local에 구축해보는 경험 수기 - 2단계, Ambari Server Image 구축
-- Base Image는 [여기](./2020-11-15-struggling-with-ambari.md)서 했음
-
-
-## 목적
-- 개인적인 목적의 Spark App개발과 새로운 Hadoop 기술 테스트 베드로서의 목적을 하는 Docker기반의 클러스터를 구성해보고자 함
+# 목적
+- 개인적인 목적의 Spark App개발과 새로운 Hadoop 기술 테스트 베드를 목적으로 하는, 로컬 클러스터를 구성해보고자 함
 - Hadoop의 Pseudo Distribution 모드가 아닌 Full distribution으로 구성해보고자 함
-- CentOS base의 여러 컨테이너를 띄워 각각이 Cluster의 Node가 될 예정
+- CentOS base의 여러 Docker 컨테이너를 띄워 각각이 Cluster의 Node가 될 예정
 
-## 나의 노트북 주요사양
-- [Pentium 2020m](https://ark.intel.com/content/www/us/en/ark/products/71142/intel-pentium-processor-2020m-2m-cache-2-40-ghz.html) [passmark](https://www.cpubenchmark.net/cpu.php?cpu=Intel+Pentium+2020M+%40+2.40GHz&id=1855)
-- Intel HD graphics
-- DDR3 RAM 16GB
-- Windows 10
 
-상기 스펙을 보다시피, 현재 최신 보급형에도 한참 못미치는 스펙으로, 워낙 저스펙 CPU라 사실 제대로 돌아갈거라고 예상하고 있진 않음
-
-## 사용된 주요 기술 스택
+# 사용된 주요 기술
 - [Apache Ambari](https://ambari.apache.org/)
 - [Docker](https://www.docker.com/)
 - [Hadoop](https://hadoop.apache.org/)
 - [Hive](https://hive.apache.org/)
-- [Kafka](https://kafka.apache.org/)
+- [Kafka](https://kafka.apache.org/)  
+  
 
-## 시작 전 준비되야 할 사항들
+# 시작 전 준비되야 할 사항들
 - [Base Image 구축 과정](./2020-11-15-struggling-with-ambari.md)을 보고 오면 좋음
 
 
-## 본문
-### Server image 만들기
+# 본문(Server image 만들기)
 
-[이전 과정](./2020-11-15-struggling-with-ambari.md)에서 정의한 Base Image는 [내 docker hub repository](https://hub.docker.com/r/devmoonduck/ambari-local-base)에 Push 되었다. 여기서는 이 Base image를 기반으로 Ambari 서버를 구축할 것이다.
+[이전 과정](./2020-11-15-struggling-with-ambari.md)에서 이미 필요한 모든 의존성과 잡다한 설정이 거의 완료된 상태이기 때문에, 크게 어려울 게 없다. 참고로 Base image는 내 [Docker hub Repository](https://hub.docker.com/u/devmoonduck)에 Push되었고, [`devmoonduck/ambari-local-base`](https://hub.docker.com/r/devmoonduck/ambari-local-base)를 사용하면 된다.
 
-#### Base image를 기반으로 Dockerfile 생성
+## Base image를 기반으로 Dockerfile 생성
 ```dockerfile
 FROM devmoonduck/ambari-local-base:2.7.4.0
 ```
 특별히 설명할 건 없다. 다음 단계로 넘어가자.  
 
-#### ambari server 설치
-[이전 단계](./2020-11-15-struggling-with-ambari.md)에서 이미 Hortonworks Repo를 추가했기때문에 간단하게 yum으로 설치가 가능하다.
+## ambari server 설치
+[이전 단계](./2020-11-15-struggling-with-ambari.md)에서 이미 Hortonworks Repo를 추가했기 때문에 간단하게 yum으로 설치가 가능하다.
 ```dockerfile
 RUN yum install -y ambari-server
 ```
 
-#### 미리 설정된 설정 파일을 지정된 위치에 놓기
-나의 경우 ambari db로 외부 PostgresQL을 사용할 예정이다. 여러가지 이유가 있지만 Production 상황에서 절대 In-memory db나 Ambari server내에 Embedding한 DB를 사용할리가 없기에 이와 같은 선택을 했다.  
-그런데 Ambari server를 설치하고 나면 아래와 같은 명령어로 Command line으로 interaction 하며 설정을 입력해줘야한다.
+## 미리 설정된 설정 파일을 지정된 위치에 놓기
+Ambari Server를 설치하고 나면 첫 관문은 설정이다.
+원래는 아래와 같이 `ambari-server setup` command를 통해 Ambari server와 CLI로 인터랙션하며 설정해줘야한다.
 ```bash
 $> ambari-server setup
 Checking JDK...
@@ -63,14 +52,39 @@ Checking JDK...
 Enter choice (1):
 ...
 ```
-Image 실행시 이렇게 일일히 입력할 순 없으므로, 미리 설정파일을 만들어놓고 실행시켜도 노프라블럼이다.
-참고로 위와 같은 프로세스를 통해 `/etc/ambari-server/conf`에 `ambari.properties`와 `password.dat`가 생성된다.
-그러므로 우리는 `ambari.properties`와 `password.dat`를 만들어놓고 해당 경로에 놓기만 하면 된다. 위 파일들은 [여기](https://github.com/dev-m00n/ambari-local-server/tree/master/ambari-conf)에 있다.
+이 과정을 완료하면 `/etc/ambari-server/conf`에 `ambari.properties`와 `password.dat`가 생성되는데, 미리 만든 `ambari.properties`와 `password.dat`를 지정된 위치에 놓아둔다면, 굳이 인터랙션을 통해 하나하나 일일히 설정할 필요가 없게된다.
+
+나의 경우 별도의 PostgresQL 컨테이너를 올릴 생각이며, Ambari server가 이 Postgres를 사용하도록 설정하기위해 `ambari.properties`파일을 아래와 같이 수정했다. 참고로 `ambari.properties`는 원본은 [여기](https://github.com/apache/ambari/blob/trunk/ambari-server/conf/unix/ambari.properties) 있는데, 설치후 Ambari에 의해 생성된 properties는 내 [Repository](https://github.com/dev-m00n/ambari-local-server/tree/master/ambari-conf)에 올려두었다. 
+바꿔야할 주요 설정은 아래와 같다.
+```properties
+java.home=/usr/lib/jvm/jre
+...
+server.jdbc.rca.driver=org.postgresql.Driver
+server.jdbc.rca.url=jdbc:postgresql://db.cluster.local:5432/hadoop
+server.jdbc.rca.user.name=ambari
+server.jdbc.rca.user.passwd=/etc/ambari-server/conf/password.dat
+server.jdbc.url=jdbc:postgresql://db.cluster.local:5432/hadoop
+server.jdbc.user.name=ambari
+server.jdbc.user.passwd=/etc/ambari-server/conf/password.dat
+...
+stack.java.home=/usr/lib/jvm/jre
+```
+기타 잡다한, 특히 timeout관련된 것은 머신 성능이 안좋다면 늘려주는게 좋다. 내 똥컴에서는 몇번이나 타임아웃나고 해서 아예 비상식적으로 늘려버렸다.(안그러면 설치 중 타임아웃으로 설치가 취소됨)
+```properties
+agent.package.install.task.timeout=36000
+...
+agent.task.timeout=18000
+...
+```
+`password.dat`는 아래와 같은 암호화되어 있지 않은 db 비밀번호가 파일에 저장되어 있다.
+```
+bigdata
+```
+이제 위 두 파일을 적절한 위치에 올려주면 따로 ambari server를 설정하지 않아도 된다.
+
 ```dockerfile
 COPY ambari-conf/ambari.properties ambari-conf/password.dat /etc/ambari-server/conf/
 ```
-
-다시 한 번 강조하면, 나는 외부 PostgresQL을 사용할 예정이고, 이 역시 Docker container가 될 예정이다.
 
 이렇게 생성된 Dockerfile을 실행하면 따로 설정없이 바로 실행할 수 있다.
 
@@ -87,7 +101,7 @@ ambari-server start
 
 하지만 몇 가지 빠진 것이 있다. 당장은 실행되지만, 나중에 필요한 것들이 있다.
 
-예를 들면, Ambari server에서 Hadoop을 설치할 때 agent로 ssh로 접근하여 이것 저것 설치하고 설정하는데, 이를 위해서는 Agent측에 Ambari server의 SSH public key가 `authorized_keys`에 등록되어 있어야 한다.
+예를 들면, Ambari server에서 각 Agent에 Hadoop을 설치할 때 agent로 ssh로 접근하여 이것 저것 설치하고 설정하는데, 이를 위해서는 Agent측에 Ambari server의 SSH public key가 `authorized_keys`에 등록되어 있어야 한다.
 
 이를 위한 첫 작업으로 ssh key를 container 내부에서 생성하고 다시 Host로 복사해와서 `Dockerfile`과 같은 디렉토리에 위치 시킨다.이제 이 키를 container에 복사하는 구문을 추가한다.
 ```dockerfile
