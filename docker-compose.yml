@@ -8,10 +8,9 @@ services:
         - JEKYLL_VERSION=3.8
     volumes:
       - ./:/srv/jekyll/
-      - ./entrypoint.sh:/scripts/entrypoint.sh
     tty: true
     stdin_open: true
     entrypoint: 
-      - /scripts/entrypoint.sh
+      - /srv/jekyll/tools/run.sh
     ports:
       - "4000:4000"
