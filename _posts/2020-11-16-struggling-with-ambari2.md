@@ -129,7 +129,7 @@ RUN chmod 644 /root/.ssh/id_rsa.pub && chmod 600 /root/.ssh/id_rsa
 ```
 
 ## TODO
-- Ambari Agent Image
+- ~~Ambari Agent Image~~ [여기](./2020-11-17-struggling-with-ambari3.md)서 완료
 - Ambari 외부 PostgresQL Container
 - 보다 쉬운 설정을 위한 UI기반의 설정([React JS](https://reactjs.org/) 기반)
 - 또다른 흥미로운 Hadoop 기반 기술 적용

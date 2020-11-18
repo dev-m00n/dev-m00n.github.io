@@ -149,7 +149,7 @@ ENTRYPOINT [ "/entry/run.sh" ]
 
 # TODO
 - ~~Ambari Server Image~~ [여기](./2020-11-16-struggling-with-ambari2)서 완료
-- Ambari Agent Image
+- ~~Ambari Agent Image~~ [여기](./2020-11-17-struggling-with-ambari3.md)서 완료
 - 보다 쉬운 설정을 위한 UI기반의 설정([React JS](https://reactjs.org/) 기반)
 - 또다른 흥미로운 Hadoop 기반 기술 적용
 	- [Apache Iceberg](https://iceberg.apache.org/)
