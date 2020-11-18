@@ -2,7 +2,7 @@
 title: CentOS에서 Service 동작하도록 하기
 author: Moon
 date: 2020-11-18 21:50:00 +0700
-categories: [Hadoop]
+categories: [Troubleshooting]
 tags: [Troubleshooting, Docker, CentOS]
 math: true
 ---
