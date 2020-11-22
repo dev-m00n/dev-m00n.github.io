@@ -54,7 +54,7 @@ Mac OS | 177382780 | 247012762
 - [docker build hangs/crashes when useradd with large UID #5419
 ](https://github.com/moby/moby/issues/5419) in moby
 
-내 상황과 비슷한 질문과 답변을 통해 이는 [Sparse file](https://en.wikipedia.org/wiki/Sparse_file), `/var/log/lastlog`(https://en.wikipedia.org/wiki/Lastlog) 과 관련되었다는 것을 알게되었다.
+내 상황과 비슷한 질문과 답변을 통해 이는 [Sparse file](https://en.wikipedia.org/wiki/Sparse_file), [`/var/log/lastlog`](https://en.wikipedia.org/wiki/Lastlog) 과 관련되었다는 것을 알게되었다.
 
 빌드된 이미지를 실행하고 용량을 체크해본 결과 두 파일이 비정상적으로 컸다.
 ```bash
