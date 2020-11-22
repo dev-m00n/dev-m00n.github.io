@@ -68,7 +68,7 @@ root@c8a4e3939d80:/var/log# du -sh *
 구글링하다보면, 이 파일 사이즈로 인해 생긴 이슈로 올린 질문들이 꽤 있다.
 
 # Sparse file
-
+추후 보강
 
 # Lastlog & Faillog
 ## Lastlog
@@ -77,7 +77,8 @@ root@c8a4e3939d80:/var/log# du -sh *
 ```
 The lastlog file is a database which contains info on the last login of each user. ...중략... It is a sparse file, so its size on the disk is usually much smaller than the one shown by "ls -l" (which can indicate a really big file if you have in passwd users with a high UID). You can display its real size with "ls -s".
 ```
-중요한 점은 sparse file로 `ls -l`로 보여지는 사이즈보다 실제로는 적게 차지한다고 한다.
+중요한 점은 sparse file로 `ls -l`로 보여지는 사이즈보다 실제로는 적게 차지한다고 한다.  
+또한 만약 유저가 높은 UID값(나와 같은 경우)은 파일이 크게 보이지만 `ls -s`로 보면 실제 사이즈(매우 적음)를 볼 수 있다고 한다
 
 ## Faillog
 [man faillog page](https://man7.org/linux/man-pages/man5/faillog.5.html)에 따르면 `/var/log/faillog`는 유저의 로그인 실패 횟수, 최대로 허용되는 실패 횟수등을 관리하는 데이터라고 한다.
@@ -133,7 +134,8 @@ struct    faillog {
 
 # 사이즈 해결방법
 ## -l option for useradd
+추후 보강
 
 ## mount ? to `/dev/null`
-
+추후 보강
 
