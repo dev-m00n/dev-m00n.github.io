@@ -68,7 +68,11 @@ root@c8a4e3939d80:/var/log# du -sh *
 구글링하다보면, 이 파일 사이즈로 인해 생긴 이슈로 올린 질문들이 꽤 있다.
 
 # Sparse file
-추후 보강
+`Sparse file`은 부분적으로 데이터가 없는 파일을 효율적으로 이용하기 위한 파일 타입이다.
+주로 disk image, database snapshot 또는 log file에서 사용하며, 미리 데이터 사이즈를 잡아두어 `ls`등으로 보면 아무것도 없는 데이터인데 비교적 큰 사이즈를 가지고 있지만, 실제로는 해당 사이즈를 차지하고 있지 않으며 나중에 채워질 수 있는 파일이다.  
+만약 내 디스크에 남은 용량이 20GB에 없어도 새로운 100GB의 Sparse file을 만들 수 있다. 왜냐하면 실제로 100GB를 차지하지 않고 있기때문이며(물론 실제 데이터가 20GB를 넘어가는 순간 당연히 에러를 맞이하게 될 것이다) [Wiki의 이미지](https://en.wikipedia.org/wiki/Sparse_file)가 매우 직관적이므로 이를 첨부한다.  
+![Sparse file in Wiki](../assets/img/post/sparse_file_in_wiki.png)
+
 
 # Lastlog & Faillog
 ## Lastlog
