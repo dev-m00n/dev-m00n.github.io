@@ -71,6 +71,33 @@ RUN curl https://raw.githubusercontent.com/dev-m00n/ambari-local-server/master/i
 ```
 이제 Ambari server는 각 agent에 비밀번호 입력없이 `ssh {agent-host}`로 접근할 수 있게 된다.
 
+## rpcbind 설치
+ Ambari를 통해 모드 컴포넌트들을 설치한 후 서비스를 실행시키면 일부가 실패하는데 이는 `rpcbind` using `systemctl start rpcbind` 가 실패하기 떄문이다. 따라서 이 의존성 역시 설치되어야 한다.
+ ```dockerfile
+ RUN yum install -y rpcbind
+ ```
+ 그러나 여기엔 문제점이 있는데, rpcbind를 설치하면, systemd의존성을 업데이트 해버려서 `/usr/bin/systemctl` 역시 날라가버린다. 그래서 이전 base image구축할 때 사용했던 custom systemctl을 안전한 곳에 놓아두고 `rpcbind`를 설치한 후 다시 원래 자리에 두기로 한다.
+ ```dockerfile
+RUN mv /usr/bin/systemctl /tmp/ && yum install -y rpcbind && mv /tmp/systemctl /usr/bin/
+ ```
+
+완성된 Dockerfile은 아래와 같다.(몇가지 더 넣긴했지만 없어도 문제가 없는 작업들이다)
+```dockerfile
+FROM devmoonduck/ambari-local-base:2.7.4.0
+
+LABEL maintainer="devlog.moonduck@gmail.com"
+
+RUN yum install -y initscripts ambari-agent && yum clean all && rm -rf /var/cache/yum 
+
+COPY run-ambari-agent.sh /entry/usr/
+
+COPY ambari-conf/ambari-agent.ini /etc/ambari-agent/conf/
+
+RUN ssh-keygen -t rsa -q -f "/root/.ssh/id_rsa" -N "" && curl https://raw.githubusercontent.com/dev-m00n/ambari-local-server/master/id_rsa.pub -o /root/.ssh/authorized_keys
+
+#Since installing rpcbind overwrites systemctl in /usr/bin/, we need to move custom systemctl to safe place, and get it back to /usr/bin/
+RUN mv /usr/bin/systemctl /tmp/ && yum install -y rpcbind && yum clean all && rm -rf /var/cache/yum && mv /tmp/systemctl /usr/bin/
+```
 
 ## TODO
 - Ambari 외부 PostgresQL Container
