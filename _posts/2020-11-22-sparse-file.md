@@ -77,9 +77,10 @@ root@c8a4e3939d80:/var/log# du -sh *
 # Lastlog & Faillog
 ## Lastlog
 [man lastlog page](https://linux.die.net/man/8/lastlog)에 따르면 `/var/log/lastlog` 는 각 유저의 마지막 로그인 정보를 기록하고 있다.  
-또한 다음과 데이터베이스라고 설명하고 있는데
+또한 다음과 같이 데이터베이스라고 설명하고 있는데
 ```
-The lastlog file is a database which contains info on the last login of each user. ...중략... It is a sparse file, so its size on the disk is usually much smaller than the one shown by "ls -l" (which can indicate a really big file if you have in passwd users with a high UID). You can display its real size with "ls -s".
+The lastlog file is a database which contains info on the last login of each user. ...중략... 
+It is a sparse file, so its size on the disk is usually much smaller than the one shown by "ls -l" (which can indicate a really big file if you have in passwd users with a high UID). You can display its real size with "ls -s".
 ```
 중요한 점은 sparse file로 `ls -l`로 보여지는 사이즈보다 실제로는 적게 차지한다고 한다.  
 또한 만약 유저가 높은 UID값(나와 같은 경우)은 파일이 크게 보이지만 `ls -s`로 보면 실제 사이즈(매우 적음)를 볼 수 있다고 한다
@@ -92,10 +93,10 @@ The file contains fixed length records, indexed by numerical UID.
 ```
 UID로 인덱스 되는 고정된 크기의 레코드라는 것이다.  
 즉 UID가 큰 값이면 이 고정된 크기 역시 매우 크게 된다는 점이다.  
-다만 man에서는 faillog가 `sparse file`이라는 점을 언급되지 않았다.
+다만 man에서는 faillog가 `sparse file`이라는 점을 언급하지 않았다.
 
 # User id와 sparse file 그리고 Lastlog의 관계
-[man lastlog](https://linux.die.net/man/8/lastlog)에 따르면`lastlog` file은 각 User의 마지막 로그인 정보를 가진 database이며 **Sparse file**이라고 한다. 또한 주의사항으로, **User ID gap이 크면 어떠한 출력도 없이 lastlog의 실행시간을 늘려버릴 수 있다**고 경고한다.
+[man lastlog](https://linux.die.net/man/8/lastlog)에 따르면 주의사항으로, **User ID gap이 크면 어떠한 출력도 없이 lastlog의 실행시간을 늘려버릴 수 있다**고 경고한다.
 ```
 Large gaps in UID numbers will cause the lastlog program to run longer with no output to the screen (i.e. if in lastlog database there is no entries for users with UID between 170 and 800 lastlog will appear to hang as it processes entries with UIDs 171-799).
 ```
@@ -106,7 +107,7 @@ postgres:x:247012762:177382780::/var/lib/postgresql:/bin/bash
 ```
 user 999(Postgres user id)를 247012762로 변경하는데 왜 Hang이 걸렸는지 이해가 갔다.
 
-lastlog의 구조는 아마 id 0부터 max id까지 연속적인 자료구조와 같은 구조로 생각되었다.
+여기서 lastlog의 구조는 id 0부터 max id까지 연속적인 자료구조로 예상된다.
 
 좀 더 구글링해보니 꽤 [간단 명료한 답변](https://unix.stackexchange.com/questions/529827/is-there-a-reason-why-var-log-lastlog-is-a-huge-sparse-file-1-1tb)을 찾을 수 있었는데, 요약하면 다음과 같다.
 
@@ -118,7 +119,7 @@ struct lastlog {
     char    ll_host[UT_HOSTSIZE];   // 256
 } entry[UINT_MAX];
 ```
-한 User의 데이터는 4 + 32 + 256 = 292byte이며 이를 user login 정보를 조회할 경우 아래와 같이 접근하며 O(1)의 시간 복잡도로 매우 빠르게 조회할 수 있다.
+한 User의 데이터는 4 + 32 + 256 = 292byte이며 user login 정보를 조회할 경우 아래와 같이 접근하며 O(1)의 시간 복잡도로 매우 빠르게 조회할 수 있다.
 ```
 uid * sizeof(struct lastlog)
 ```
