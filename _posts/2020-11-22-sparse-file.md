@@ -3,7 +3,7 @@ title: Sparse file
 author: Moon
 date: 2020-11-22 18:40:00 +0700
 categories: [OS]
-tags: [OS]
+tags: [OS, Troubleshooting]
 math: true
 ---
 # Introduction
