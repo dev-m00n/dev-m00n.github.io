@@ -2,10 +2,11 @@
 title: Sparse file
 author: Moon
 date: 2020-11-22 18:40:00 +0700
-categories: [OS]
+categories: [Troubleshooting]
 tags: [OS, Troubleshooting]
 math: true
 ---
+
 # Introduction
 Ambari Docker image를 구축하는 과정에서, Macbook에서 실행시 Docker image가 지나치게 커지는 상황을 경험했다.
 이상한 점은, WSL(Windows Subsystem for Linux) Ubuntu에서 빌드할 때는 100MB 언저리였지만, Mac OS에서 실행하니 무려 80GB넘어갔고, 빌드 시간도 1분이면 완료될 것이 한 시간이 걸리는 상황이었다.
@@ -48,6 +49,9 @@ RUN groupmod -og $POSTGRES_GID postgres && usermod -u $POSTGRES_UID postgres
 WSL ubuntu | 765(기억안나지만 백단위) | 1000
 Mac OS | 177382780 | 247012762
 
+# 이 트러블 슈팅이 유용한 상황
+- why my docker image is huge
+- why my docker build gets stuck in useradd/usermod
 
 # Related Issue
 - [Huge Docker file and `tar` behavior](https://superuser.com/questions/1178073/huge-docker-file-and-tar-behavior)
