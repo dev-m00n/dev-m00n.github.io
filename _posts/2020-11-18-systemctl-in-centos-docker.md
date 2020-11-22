@@ -126,3 +126,23 @@ root       106     1  0 15:26 pts/0    00:00:00 ps -ef
 정상적으로 데몬이 실행됨을 볼 수 있다.
 
 여기서는 chrony만 시도해봤지만, 대부분의 서비스가 이 트러블 슈팅으로 해결될 수 있을거라 생각된다.
+
+# 주의사항
+Ambari를 local에 구축하며 몇 번의 Troubleshooting이 있었다.
+먼저, 이 과정(systemctl replacement) 이후 의존성을 설치할 때 주의해야한다.
+예를 들어, `rpcbind`를 설치하는 경우, 이후 이 과정에서 진행한 모든 것이 원점으로 돌아간다.
+왜냐하면, `rpcbind`를 설치하면서 몇 가지 의존성을 업데이트하는데 여기서 `systemd`가 같이 업데이트 되기때문이다.
+```bash
+$> yum install -y rpcbind
+...
+Installing:
+ rpcbind             x86_64        0.2.0-49.el7            base            60 k
+Installing for dependencies:
+ libtirpc            x86_64        0.2.4-0.16.el7          base            89 k
+Updating for dependencies:
+ systemd             x86_64        219-78.el7_9.2          updates        5.1 M
+ systemd-libs        x86_64        219-78.el7_9.2          updates        418 k
+```
+이 과정이후엔 `/usr/bin/systemctl`은 OS image 기본으로 되돌아가며, 당연히 service들이 동작하지 않는다.
+
+따라서 의존성 설치하기 전 미리 systemctl을 백업해놓고 다시 덮어씌우는 과정을 까먹지말자
