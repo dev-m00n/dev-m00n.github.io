@@ -7,9 +7,9 @@ tags: [OS, Troubleshooting]
 math: true
 ---
 
-# Introduction
-Ambari Docker image를 구축하는 과정에서, Macbook에서 실행시 Docker image가 지나치게 커지는 상황을 경험했다.
-이상한 점은, WSL(Windows Subsystem for Linux) Ubuntu에서 빌드할 때는 100MB 언저리였지만, Mac OS에서 실행하니 무려 80GB넘어갔고, 빌드 시간도 1분이면 완료될 것이 한 시간이 걸리는 상황이었다.
+# Issue
+Ambari Docker image를 구축하는 과정에서, **Macbook에서 실행시 Docker image가 지나치게 커지는 상황**을 경험했다.
+이상한 점은, **WSL(Windows Subsystem for Linux) Ubuntu에서 빌드할 때는 300MB 언저리였지만, Mac OS에서 실행하니 무려 80GB넘어갔고, 빌드 시간도 1분이면 완료될 것이 한 시간이 걸리는 상황**이었다.
 
 ```bash
  $ ~/PersonalProject/ambari/cluster-db> docker build . -t "cluster-postgres" --build-arg POSTGRES_UID=$UID --build-arg POSTGRES_GID=$GID
@@ -32,7 +32,7 @@ REPOSITORY          TAG                 IMAGE ID            CREATED             
 cluster-postgres    latest              86660ea7f278        13 minutes ago      80.3GB
 postgres            12.4                492fb9ae4e7a        5 weeks ago         314MB
 ```
-build 하려던 이미지는 PostgresQL 기반 이미지이며, 단지 user postgres의 UID 와 GID를 변경했을 뿐이었다.
+build 하려던 이미지는 PostgresQL 기반 이미지이며, 단지 user postgres의 **UID 와 GID를 변경했을 뿐**이었다.
 ```dockerfile
 FROM postgres:12.4
 
@@ -41,13 +41,14 @@ ARG POSTGRES_UID
 
 RUN groupmod -og $POSTGRES_GID postgres && usermod -u $POSTGRES_UID postgres
 ```
-참고로 postgres이미지는 약 100MB로, 이 이미지도 큰 차이가 없어야 하는게 정상이다.
+참고로 postgres이미지는 약 300MB로, 이 이미지도 큰 차이가 없어야 하는게 정상이다.
 두 상황(WSL ubuntu, MacOS)에서 다른 점은 전달되는 Argument `POSTGRES_GID`, `POSTGRES_UID`뿐이다.
 
 | OS  | POSTGRES_GID | POSTGRES_UID | 
 | --- | ------------ | ------------ |
 WSL ubuntu | 765(기억안나지만 백단위) | 1000
 Mac OS | 177382780 | 247012762
+
 
 # 이 트러블 슈팅이 유용한 상황
 - why my docker image is huge
@@ -141,10 +142,38 @@ struct    faillog {
 ```
 이것도 대략 계산하면 7.4G를 차지한 것도 말이 된다.
 
-# 사이즈 해결방법
+# 해결방법
 ## -l option for useradd
-추후 보강
+`useradd`의 manual을 보면 log를 사용하지 않도록 할 수 있는 옵션이 있다.
+```
+-l, --no-log-init
+Do not add the user to the lastlog and faillog databases.
+```
+따라서 `useradd`는 간단하게 해결할 수 있다.
+그렇다면 `usermod`는 이 옵션이 있을까? 없다
 
-## mount ? to `/dev/null`
-추후 보강
+## how to resolve this issue for usermod
 
+### Option 1. userdel && useradd
+여러가지 방법이 있겠지만 나는 `userdel`로 유저를 삭제후 `useradd -l`로 다시 만들어주는 방법이 있다.
+```dockerfile
+RUN userdel postgres && groupadd postgres -g $POSTGRES_GID && useradd -l -u $POSTGRES_UID postgres -g $POSTGRES_GID
+```
+결과는 예상했던대로 Postgres image와 차이가 없었다
+```bash
+ $> ~/PersonalProject/ambari/cluster-db> docker image ls
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+cluster-postgres    latest              712fbca0247f        7 minutes ago       314MB
+```
+
+### Option 2. ln -sfn /dev/null /var/log/lastlog && ln -sfn /dev/null /var/log/faillog
+User를 삭제하지 않고싶다면, `lastlog`와 `faillog`를 `/dev/null`로 리다이렉트 시켜버린다.
+```dockerfile
+  RUN ln -sfn /dev/null /var/log/lastlog && ln -sfn /dev/null /var/log/faillog && groupmod -og $POSTGRES_GID postgres && usermod -u $POSTGRES_UID postgres
+```
+Image 사이즈 역시 예상했던대로 적게 나왔다.
+```bash
+ $ ~/PersonalProject/ambari/cluster-db> docker image ls
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+cluster-postgres    latest              cf93ece72c3d        5 minutes ago       314MB
+```
