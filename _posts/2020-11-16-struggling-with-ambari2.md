@@ -5,6 +5,7 @@ date: 2020-11-16 21:17:00 +0700
 categories: [Hadoop]
 tags: [Hadoop, Ambari, Docker]
 math: true
+preview: Ambari Hadoop cluster on local, 두번째 Ambari server image 만들었던 과정
 ---
 # 목적
 - 개인적인 목적의 Spark App개발과 새로운 Hadoop 기술 테스트 베드를 목적으로 하는, 로컬 클러스터를 구성해보고자 함

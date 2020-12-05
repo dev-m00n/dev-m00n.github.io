@@ -5,6 +5,7 @@ date: 2020-11-22 18:40:00 +0700
 categories: [Troubleshooting]
 tags: [OS, Troubleshooting]
 math: true
+preview: User를 하나 추가했을 뿐인데 Docker image가 지나치게 커지는 문제, 이유가 뭘까?
 ---
 
 # Issue
