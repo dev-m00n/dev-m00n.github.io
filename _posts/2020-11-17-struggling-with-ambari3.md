@@ -1,5 +1,5 @@
 ---
-title: 다목적 Hadoop local cluster 구축 - Agent Image 만들기(Docker image for Ambari Agent)
+title: Ambari Agent Image 만들기
 author: Moon
 date: 2020-11-17 21:21:00 +0700
 categories: [Hadoop]

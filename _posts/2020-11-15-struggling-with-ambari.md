@@ -1,10 +1,11 @@
 ---
-title: 다목적 Hadoop local cluster 구축 - Base Image 만들기(Ambari on Docker base image)
+title: Ambari local cluster base Image 만들기
 author: Moon
 date: 2020-11-15 21:17:00 +0700
 categories: [Hadoop]
 tags: [Hadoop, Ambari, Docker]
 math: true
+preview: Ambari Hadoop cluster on local, 첫번째 Ambari server와 agent image를 위한 base image를 만들었던 과정
 ---
 
 # 목적

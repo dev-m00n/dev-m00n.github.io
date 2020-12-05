@@ -1,5 +1,5 @@
 ---
-title: 다목적 Hadoop local cluster 구축 - Server Image 만들기(Docker image for Ambari Server)
+title: Ambari Server Image 만들기
 author: Moon
 date: 2020-11-16 21:17:00 +0700
 categories: [Hadoop]
