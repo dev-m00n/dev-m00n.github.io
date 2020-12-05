@@ -11,6 +11,6 @@ services:
     tty: true
     stdin_open: true
     entrypoint: 
-      - /srv/jekyll/tools/run.sh
+      - /srv/jekyll/entrypoint.sh
     ports:
       - "4000:4000"
