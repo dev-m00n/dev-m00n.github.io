@@ -5,7 +5,7 @@ date: 2020-11-18 21:50:00 +0700
 categories: [Troubleshooting]
 tags: [Troubleshooting, Docker, CentOS]
 math: true
-preview: [Failed to get D-Bus connection!] 어떻게 해결할까? Docker기반의 OS container에서는 시스템 서비스를 동작하도록 해보자
+preview: Failed to get D-Bus connection! 어떻게 해결할까? Docker기반의 OS container에서는 시스템 서비스를 동작하도록 해보자
 ---
 # 목적
 Ambari를 Docker에서 실행시키기 위해서는 systemctl로 OS내부의 service들을 동작시켜야 하는데, Docker image에서는 기본적으로 동작하지 않는다. 물론 systemctl이 동작하지 않아도 경고만 발생할 뿐인 것 같지만, 아직 오랜 시간 운영을 해보지 않아 확실하지 않다.  
